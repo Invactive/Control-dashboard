@@ -102,15 +102,42 @@ app.layout = html.Div([
             dbc.Row([
                 dbc.Col([
                     html.Div([html.H2("Controller Parameters", style={'textAlign': 'center'}),
-                              dcc.RadioItems(
-                        id='parametersRB',
-                        options=[
-                            {'label': 'Parameter 1', 'value': 'p1'},
-                            {'label': 'Parameter 2', 'value': 'p2'},
-                            {'label': 'Parameter 3', 'value': 'p3'}
-                        ]
+                              "Parameter 1: ",
+                              dcc.Input(
+                        id="inpPar1",
+                        placeholder='Enter a value...',
+                        type='number',
+                        value='',
+                        style={'marginRight': '10px'}
                     ),
-                        html.Div(id='outputPar', style={'textAlign': 'center'})
+                        html.Br(),
+                        "Parameter 2: ",
+                        dcc.Input(
+                        id="inpPar2",
+                        placeholder='Enter a value...',
+                        type='number',
+                        value='',
+                        style={'marginRight': '10px'}
+                    ),
+                        html.Br(),
+                        "Parameter 3: ",
+                        dcc.Input(
+                        id="inpPar3",
+                        placeholder='Enter a value...',
+                        type='number',
+                        value='',
+                        style={'marginRight': '10px'}
+                    ),
+                        html.Div(id='outputPar1', style={
+                                 'textAlign': 'center'}
+                                 ),
+                        html.Div(id='outputPar2', style={
+                            'textAlign': 'center'}
+                    ),
+                        html.Div(id='outputPar3', style={
+                            'textAlign': 'center'}
+                    ),
+
                     ])
                 ], width=4, align='start'),
                 dbc.Col([
@@ -134,11 +161,27 @@ def update_output(value):
 
 
 @app.callback(
-    Output('outputPar', 'children'),
-    [Input('parametersRB', 'value')]
+    Output('outputPar1', 'children'),
+    [Input('inpPar1', 'value')]
 )
 def update_output(value):
-    return f'You have selected {value}'
+    return f'Param 1 value: {value}'
+
+
+@app.callback(
+    Output('outputPar2', 'children'),
+    [Input('inpPar2', 'value')]
+)
+def update_output(value):
+    return f'Param 2 value: {value}'
+
+
+@app.callback(
+    Output('outputPar3', 'children'),
+    [Input('inpPar3', 'value')]
+)
+def update_output(value):
+    return f'Param 3 value: {value}'
 
 
 # Run app
