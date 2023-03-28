@@ -1,5 +1,6 @@
 from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
 import plotly.express as px
 import json
 import pandas as pd
@@ -66,6 +67,8 @@ fig4 = px.line(df4, x="x", y="y", title="Position x in time t")
 app = Dash(external_stylesheets=[dbc.themes.SLATE])
 
 app.layout = html.Div([
+    dcc.Location(id='url', refresh=True),
+
     dbc.Card(
         dbc.CardBody([
             dbc.Row([
@@ -76,20 +79,40 @@ app.layout = html.Div([
             html.Br(),
             dbc.Row([
                 dbc.Col([
-
-                ], width=4),
+                    html.Div([html.H2("Controllers", style={'textAlign': 'center'}),
+                              dcc.RadioItems(
+                        id='controllersRB',
+                        options=[
+                            {'label': 'Controller 1', 'value': 'c1'},
+                            {'label': 'Controller 2', 'value': 'c2'},
+                            {'label': 'Controller 3', 'value': 'c3'}
+                        ]
+                    ),
+                        html.Div(id='outputCon', style={'textAlign': 'center'})
+                    ], style={'textAlign': 'left'})
+                ], width=4, align='start'),
                 dbc.Col([
                     drawFigure(df, "Speed v in time t")
                 ], width=4),
                 dbc.Col([
                     drawFigure(df2, "Position x in time t")
                 ], width=4),
-            ], align='center'),
+            ]),
             html.Br(),
             dbc.Row([
                 dbc.Col([
-
-                ], width=4),
+                    html.Div([html.H2("Controller Parameters", style={'textAlign': 'center'}),
+                              dcc.RadioItems(
+                        id='parametersRB',
+                        options=[
+                            {'label': 'Parameter 1', 'value': 'p1'},
+                            {'label': 'Parameter 2', 'value': 'p2'},
+                            {'label': 'Parameter 3', 'value': 'p3'}
+                        ]
+                    ),
+                        html.Div(id='outputPar', style={'textAlign': 'center'})
+                    ])
+                ], width=4, align='start'),
                 dbc.Col([
                     drawFigure(df3, "Error e in time t")
                 ], width=4),
@@ -101,5 +124,23 @@ app.layout = html.Div([
     )
 ])
 
-# Run app and display result inline in the notebook
-app.run_server()
+
+@app.callback(
+    Output('outputCon', 'children'),
+    [Input('controllersRB', 'value')]
+)
+def update_output(value):
+    return f'You have selected {value}'
+
+
+@app.callback(
+    Output('outputPar', 'children'),
+    [Input('parametersRB', 'value')]
+)
+def update_output(value):
+    return f'You have selected {value}'
+
+
+# Run app
+if __name__ == "__main__":
+    app.run_server(debug=True)
