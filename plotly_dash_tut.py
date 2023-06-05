@@ -1,15 +1,30 @@
-import plotly.express as px
-import pandas as pd
-import json
+import dash
+import dash_html_components as html
+from dash.dependencies import Input, Output, State
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div(
+    children=[
+        html.H1(id='element', children='Initial Element'),
+        html.Button('Change Element', id='change-button'),
+    ]
+)
 
 
-with open('DATA.json') as json_file:
-    DATA = json.load(json_file)
+@app.callback(
+    Output('element', 'children'),
+    [Input('change-button', 'n_clicks')]
+)
+def change_element(n_clicks):
+    if n_clicks is None:
+        return 'Initial Element'
 
-df = pd.DataFrame(dict(
-    x=DATA["t"],
-    y=DATA["x"]
-))
-fig = px.line(df, x="x", y="y", title="Position x in time t")
-fig.show()
+    if n_clicks % 2 == 0:
+        return 'Even Clicks'
+    else:
+        return 'Odd Clicks'
 
+
+if __name__ == '__main__':
+    app.run_server(debug=True, port=8055)
