@@ -7,66 +7,80 @@ import json
 DATA = {}
 
 # Constants
-beta = 0.75
-m = 1200  # [kg]
+#parametry procesu
+m = 5.3 * float(10**(-2)) #kg
+FemP1 = 3.5969 * float(10**(-2)) #H
+FemP2 = 5.2356 * float(10**(-3)) #m
+f1 = 1.4142 * float(10**(-4)) #ms
+f2 = 4.5626 * float(10**(-3)) #m
+k = 2.6 * float(10**(0)) #A
+c = -4.44 * float(10**(-2)) #A
+g = 9.81
 
 # Simulation params
-Tp = 0.1  # [s]
-T_sim = 40  # [s]
-N = int(T_sim / Tp) + 1
+#parametry eksperymentu symulacyjnego
+Tp = 0.0001
+Tsim = 2
+N = int(Tsim/Tp) + 1
 
 # Limits
-Fc_max = 1500
-Fc_min = -1500
-U_max = 10
-U_min = -10
+umax = 5
+umin = 0
+e_nmin = 0
+x3max = 2.38
+x3min = 0.03884
+x1max = 0.0105
+x1min = 0
+zadana = 0.005
 
-# Set voltage value
-u = [-10]
-v_zad = 20
 
-# Actuator
-Fc = [0]
+# # Set voltage value
+# u = [-10]
+# v_zad = 20
+
+# # Actuator
+# Fc = [0]
 
 # Initial values
-t = [0.0]
-v = [0.0]
-x = [0.0, 0.0, 0.0]
-e_n = [0.0]
+#wartości początkowe
+x1 = [0]
+x2 = [0]
+x3 = [0]
+y =  [0]
+u = [0]
+e_n = [0]
+t = [0]
+P = 0
 I = 0
+D = 0
 
 # Regulator
-kp = 1
-Ti = 0.01
-Td = 0
+#nastawy regulatora
+kp = 80
+Td = 10
+Ti = 120
 
 # Main loop - generating data
 for n in range(1, N):
     t.append(n * Tp)
-    if len(v) > 2:
-        x.append(v[-2] * Tp + x[-1])
 
-    e_n.append(v_zad - v[-1])
+    e_n.append(zadana - y[-1])
+    u.append(max(min(P+D+I, umax), umin))
 
-    P = kp * e_n[-1]
-    I = I + Ti * e_n[-1] * (t[-1] - t[-2])
-    # D = Td * (e_n[-1] - e_n[-2]) / (t[-1] - t[-2])
+    x1.append(max(min(( x1[-1] + Tp*x2[-1] ), x1max), x1min))
+    x2.append( x2[-1] + Tp*(g - (x3[-1]**2) * 1/(2*m) * FemP1/FemP2 * np.exp((-x1[-1]/FemP2))) )
+    x3.append(max(min(( x3[-1] + Tp * f2/f1 * np.exp((x1[-1]/f2)) * (k*u[-1] + c - x3[-1]) ), x3max), x3min))
 
-    u.append(max(min(P+I, U_max), U_min))
+    P = kp * -e_n[-1]
+    I = I + Ti * -e_n[-1] * (t[-1] - t[-2])
+    D = Td * -(e_n[-1] - e_n[-2]) / (t[-1] - t[-2])
+    y.append(x1[-1])
 
-    if u[-1] < 0:
-        v.append(
-            round(Tp * (Fc[-1] + beta * round(v[-1] * v[-1], 2)) / m + v[-1], 5))
-    else:
-        v.append(
-            round(Tp * (Fc[-1] - beta * round(v[-1] * v[-1], 2)) / m + v[-1], 5))
-
-    Fc.append((Fc_max - Fc_min) / (U_max - U_min) * (u[- 1] - U_min) + Fc_min)
 
 DATA["Time t [s]"] = t
-DATA["Position x [m]"] = x
+DATA["Position x [m]"] = x1
 DATA["Control signal u [V]"] = u
-DATA["Speed v [m/s]"] = v
+DATA["Speed v [m/s]"] = x2
 DATA["Error e [m]"] = e_n
 
 with open("DATA.json", "w") as outfile:
