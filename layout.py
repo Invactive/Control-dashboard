@@ -34,37 +34,29 @@ def drawSlider(text: str):
         ])
 
 
-def drawFigure(df: pd.DataFrame, f_title: str, id: int):
-    return html.Div([
-        dbc.Card(
-            dbc.CardBody([
-                dcc.Graph(
-                    id="graph" + str(id),
-                    figure=px.line(df, x="x", y="y", title=f_title,
-                                   ).update_layout(
-                        template='plotly_dark',
-                        plot_bgcolor='rgba(0, 0, 0, 0)',
-                        paper_bgcolor='rgba(0, 0, 0, 0)',
-                        title={
-                            'text': '<b>' + f_title + '</b>',
-                            'x': 0.5,
-                            'y': 0.95,
-                            'xanchor': 'center',
-                            'yanchor': 'top',
-                            "font_color": "#aaaaaa",
-                            'font': {
-                                'size': 20
-                            }
-                        },
-                        modebar={
-                            'orientation': 'v',
-                            'bgcolor': 'rgba(0,0,0,0.5)'
-                        }
-                    )
-                )
-            ])
-        ),
-    ])
+def drawFigure(df: pd.DataFrame, f_title: str, x_label: str, y_label: str):
+    return px.line(df, x=df.columns[0], y=df.columns[1], title=f_title,
+                   labels={df.columns[0]: x_label, df.columns[1]: y_label}
+                   ).update_layout(
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        title={
+            'text': '<b>' + f_title + '</b>',
+            'x': 0.5,
+            'y': 0.95,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            "font_color": "#aaaaaa",
+            'font': {
+                'size': 20
+            }
+        },
+        modebar={
+            'orientation': 'v',
+            'bgcolor': 'rgba(0,0,0,0.5)'
+        }
+    )
 
 
 def drawMainHeader(text: str):
@@ -182,7 +174,7 @@ def drawModelParams():
                          "always_visible": True},
             ),
             dcc.Input(
-                id="inpParamSimTime",
+                id="inpParamModelTime",
                 className="inputBox",
                 placeholder='Enter a value...',
                 type='number',
@@ -197,29 +189,29 @@ def drawModelParams():
 with open('DATA.json') as json_file:
     DATA = json.load(json_file)
 
-df = pd.DataFrame(dict(
+df0 = pd.DataFrame(dict(
     x=DATA["t"],
     y=DATA["v"]
 ))
-fig = px.line(df, x="x", y="y", title="Position x in time t")
+# fig = px.line(df0, x="x", y="y", title="Position x in time t")
 
 df1 = pd.DataFrame(dict(
     x=DATA["t"],
     y=DATA["x"]
 ))
-fig1 = px.line(df1, x="x", y="y", title="Position x in time t")
+# fig1 = px.line(df1, x="x", y="y", title="Position x in time t")
 
-df1 = pd.DataFrame(dict(
+df2 = pd.DataFrame(dict(
     x=DATA["t"],
     y=DATA["e"]
 ))
-fig2 = px.line(df1, x="x", y="y", title="Position x in time t")
+# fig2 = px.line(df1, x="x", y="y", title="Position x in time t")
 
 df3 = pd.DataFrame(dict(
     x=DATA["t"],
     y=DATA["u"]
 ))
-fig3 = px.line(df3, x="x", y="y", title="Position x in time t")
+# fig3 = px.line(df3, x="x", y="y", title="Position x in time t")
 
 
 def create_layout():
@@ -260,17 +252,60 @@ def create_layout():
                             ], width=4),
                             dbc.Row([
                                 dbc.Col([
-                                    drawFigure(df, "Speed v in time t", 0)
+                                    dbc.Card(
+                                        dbc.CardBody([
+                                            dcc.Graph(
+                                                id="graph0",
+                                                figure=drawFigure(df=pd.DataFrame(
+                                                    {"x": [], "y": []}),
+                                                    f_title="Speed v in time t",
+                                                    x_label="Time [s]",
+                                                    y_label="Speed [undefined]")
+                                            )
+                                        ])
+                                    ),
                                 ], width=3),
                                 dbc.Col([
-                                    drawFigure(df1, "Position x in time t", 1)
+                                    dbc.Card(
+                                        dbc.CardBody([
+                                            dcc.Graph(
+                                                id="graph1",
+                                                figure=drawFigure(df=pd.DataFrame(
+                                                    {"x": [], "y": []}),
+                                                    f_title="Position x in time t",
+                                                    x_label="Time [s]",
+                                                    y_label="Position [undefined]")
+                                            )
+                                        ])
+                                    ),
                                 ], width=3),
                                 dbc.Col([
-                                    drawFigure(df1, "Error e in time t", 2)
+                                    dbc.Card(
+                                        dbc.CardBody([
+                                            dcc.Graph(
+                                                id="graph2",
+                                                figure=drawFigure(df=pd.DataFrame(
+                                                    {"x": [], "y": []}),
+                                                    f_title="Error e in time t",
+                                                    x_label="Time [s]",
+                                                    y_label="Error [undefined]")
+                                            )
+                                        ])
+                                    ),
                                 ], width=3),
                                 dbc.Col([
-                                    drawFigure(
-                                        df3, "Control signal u in time t", 3)
+                                    dbc.Card(
+                                        dbc.CardBody([
+                                            dcc.Graph(
+                                                id="graph3",
+                                                figure=drawFigure(df=pd.DataFrame(
+                                                    {"x": [], "y": []}),
+                                                    f_title="Control signal u in time t",
+                                                    x_label="Time [s]",
+                                                    y_label="Control signal [undefined]")
+                                            )
+                                        ])
+                                    ),
                                 ], width=3),
                             ], align='center'),
                         ]),

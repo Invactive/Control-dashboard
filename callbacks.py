@@ -78,94 +78,75 @@ def get_callbacks(app):
         return value, value
 
     @app.callback(
-        [Output("graph0", "figure"),
-         Output("graph1", "figure"),
-         Output("graph2", "figure"),
-         Output("graph3", "figure")],
-        Input('clear-button', 'n_clicks')
+        Output("graph0", "figure"),
+        Output("graph1", "figure"),
+        Output("graph2", "figure"),
+        Output("graph3", "figure"),
+        Input('clear-button', 'n_clicks'),
+        Input('apply-button', 'n_clicks'),
+        prevent_initial_call=True
     )
-    def clear_graphs(n_clicks):
-        if n_clicks is None:
-            raise PreventUpdate
-        else:
-            return (px.line().update_layout(
-                template='plotly_dark',
-                plot_bgcolor='rgba(0, 0, 0, 0)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                title={
-                    'text': '<b>' + "Speed v in time t" + '</b>',
-                    'x': 0.5,
-                    'y': 0.95,
-                    'xanchor': 'center',
-                    'yanchor': 'top',
-                    "font_color": "#aaaaaa",
-                    'font': {
-                        'size': 20
-                    }
-                },
-                modebar={
-                    'orientation': 'v',
-                    'bgcolor': 'rgba(0,0,0,0.5)'
-                }
-            ),
-                px.line().update_layout(
-                template='plotly_dark',
-                plot_bgcolor='rgba(0, 0, 0, 0)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                title={
-                    'text': '<b>' + "Position x in time t" + '</b>',
-                    'x': 0.5,
-                    'y': 0.95,
-                    'xanchor': 'center',
-                    'yanchor': 'top',
-                    "font_color": "#aaaaaa",
-                    'font': {
-                        'size': 20
-                    }
-                },
-                modebar={
-                    'orientation': 'v',
-                    'bgcolor': 'rgba(0,0,0,0.5)'
-                }
-            ),
-                px.line().update_layout(
-                template='plotly_dark',
-                plot_bgcolor='rgba(0, 0, 0, 0)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                title={
-                    'text': '<b>' + "Error e in time t" + '</b>',
-                    'x': 0.5,
-                    'y': 0.95,
-                    'xanchor': 'center',
-                    'yanchor': 'top',
-                    "font_color": "#aaaaaa",
-                    'font': {
-                        'size': 20
-                    }
-                },
-                modebar={
-                    'orientation': 'v',
-                    'bgcolor': 'rgba(0,0,0,0.5)'
-                }
-            ),
-                px.line().update_layout(
-                template='plotly_dark',
-                plot_bgcolor='rgba(0, 0, 0, 0)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                title={
-                    'text': '<b>' + "Control signal u in time t" + '</b>',
-                    'x': 0.5,
-                    'y': 0.95,
-                    'xanchor': 'center',
-                    'yanchor': 'top',
-                    "font_color": "#aaaaaa",
-                    'font': {
-                        'size': 20
-                    }
-                },
-                modebar={
-                    'orientation': 'v',
-                    'bgcolor': 'rgba(0,0,0,0.5)'
-                }
-            )
-            )
+    def update_graphs(btn_clear, btn_apply):
+        triggered_id = dash.ctx.triggered_id
+        if triggered_id == 'clear-button':
+            return clear_graphs()
+        elif triggered_id == 'apply-button':
+            return draw_graphs()
+
+    def clear_graphs():
+        return (layout.drawFigure(
+            df=pd.DataFrame(
+                {"x": [], "y": []}),
+            f_title="Speed v in time t",
+            x_label="Time [s]",
+            y_label="Speed [undefined]"
+        ),
+            layout.drawFigure(
+            df=pd.DataFrame(
+                {"x": [], "y": []}),
+            f_title="Position x in time t",
+            x_label="Time [s]",
+            y_label="Position [undefined]"
+        ),
+            layout.drawFigure(
+            df=pd.DataFrame(
+                {"x": [], "y": []}),
+            f_title="Error e in time t",
+            x_label="Time [s]",
+            y_label="Error [undefined]"
+        ),
+            layout.drawFigure(
+            df=pd.DataFrame(
+                {"x": [], "y": []}),
+            f_title="Control signal u in time t",
+            x_label="Time [s]",
+            y_label="Control signal [undefined]"
+        )
+        )
+
+    def draw_graphs():
+        return (layout.drawFigure(
+            df=layout.df0,
+            f_title="Speed v in time t",
+            x_label="Time [s]",
+            y_label="Speed [undefined]"
+        ),
+            layout.drawFigure(
+            df=layout.df1,
+            f_title="Position x in time t",
+            x_label="Time [s]",
+            y_label="Position [undefined]"
+        ),
+            layout.drawFigure(
+            df=layout.df2,
+            f_title="Error e in time t",
+            x_label="Time [s]",
+            y_label="Error [undefined]"
+        ),
+            layout.drawFigure(
+            df=layout.df3,
+            f_title="Control signal u in time t",
+            x_label="Time [s]",
+            y_label="Control signal [undefined]"
+        )
+        )
