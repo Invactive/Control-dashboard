@@ -1,3 +1,7 @@
+.params-container {
+    margin-top: 10px;
+}
+
 .btn {
     background-color: #32383E;
     margin-top: 20px;
@@ -6,8 +10,8 @@
     border-color: #aaaaaa;
     color: #aaaaaa;
     font-weight: bold;
+    width: fit-content;
 }
-
 
 .btn:hover {
     background-color: #35373a;
@@ -16,6 +20,15 @@
 
 .btn:focus {
     outline: none;
+}
+
+.btns-container {
+    margin-top: 5px;
+    text-align: center;
+}
+
+.btns-container button {
+    margin: 10px;
 }
 
 .inputBox {
@@ -31,9 +44,37 @@
     color: #aaaaaa;
 }
 
-.row-container {
+.row-container-Kp {
     display: flex;
     align-items: normal;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.row-container-Ti {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
+.row-container-Td {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
+.row-container-Sim-Time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -5px;
+}
+
+.row-container-Sim-Tp {
+    display: flex;
+    align-items: center;
     justify-content: center;
     margin-top: 10px;
 }
@@ -41,4 +82,10 @@
 .slider {
     flex: 0.5;
     width: 70px;
+}
+
+.sliderSim {
+    flex: 0.7;
+    width: 70px;
+    margin-top: 15px;
 }
