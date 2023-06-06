@@ -1,0 +1,44 @@
+.btn {
+    background-color: #32383E;
+    margin-top: 20px;
+    border-radius: 10px;
+    padding: 10px 20px;
+    border-color: #aaaaaa;
+    color: #aaaaaa;
+    font-weight: bold;
+}
+
+
+.btn:hover {
+    background-color: #35373a;
+    color: #aaaaaa;
+}
+
+.btn:focus {
+    outline: none;
+}
+
+.inputBox {
+    background-color: #32383E;
+    border-radius: 5px;
+    border-color: #aaaaaa;
+    height: 30px;
+    width: 70px;
+}
+
+.inputBox:hover {
+    background-color: #33383d;
+    color: #aaaaaa;
+}
+
+.row-container {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.slider {
+    flex: 0.5;
+    width: 70px;
+}

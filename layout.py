@@ -6,6 +6,34 @@ import json
 import pandas as pd
 
 
+def drawSlider(text: str):
+    return html.Div(
+        className="row-container",
+        children=[
+            html.Div(text + ":",
+                     style={"margin-top": "-5px"}),
+            dcc.Slider(
+                id="slider" + text,
+                className="slider",
+                min=0,
+                max=100,
+                value=0,
+                step=0.1,
+                marks=None,
+                tooltip={"placement": "bottom",
+                         "always_visible": True}
+            ),
+            dcc.Input(
+                id="inpParam" + text,
+                className="inputBox",
+                placeholder='Enter a value...',
+                type='number',
+                value=0,
+                style={"margin-top": "-5px"},
+            ),
+        ])
+
+
 def drawFigure(df: pd.DataFrame, f_title: str):
     return html.Div([
         dbc.Card(
@@ -22,9 +50,14 @@ def drawFigure(df: pd.DataFrame, f_title: str):
                             'y': 0.95,
                             'xanchor': 'center',
                             'yanchor': 'top',
+                            "font_color": "#aaaaaa",
                             'font': {
-                                'size': 20  # Change the font weight to 'bold'
+                                'size': 20
                             }
+                        },
+                        modebar={
+                            'orientation': 'v',
+                            'bgcolor': 'rgba(0,0,0,0.5)'
                         }
                     )
                 )
@@ -46,49 +79,64 @@ def drawText(text: str):
 
 
 def drawParams(controller: str):
-    if controller == "PID":
-        return html.Div([html.H2("Controller Parameters", style={'textAlign': 'center'}),
-                        "Parameter Kp: ",
-                         dcc.Input(
-            id="inpParKp",
-            placeholder='Enter a value...',
-            type='number',
-            value='',
-            style={'marginRight': '10px', 'width': '150px'}
-        ),
-            html.Br(),
-            "Parameter Ti: ",
-            dcc.Input(
-            id="inpParTi",
-            placeholder='Enter a value...',
-            type='number',
-            value='',
-            style={'marginRight': '10px', 'width': '150px'}
-        ),
-            html.Br(),
-            "Parameter Td: ",
-            dcc.Input(
-            id="inpParTd",
-            placeholder='Enter a value...',
-            type='number',
-            value='',
-            style={'marginRight': '10px', 'width': '150px'}
-        ),
-            html.Br(),
-            html.Br(),
-            html.Div(
-            html.Button("Apply and Generate Graphs",
-                        id="apply-button"),
+    if controller == "P":
+        return html.Div([html.H2("Controller Parameters",
+                                 style={'textAlign': 'center'}
+                                 ),
+                         drawSlider("Kp"),
+                         html.Div(
+            html.Button("Update Graphs",
+                        id="apply-button",
+                        className="btn"),
             style={"text-align": "center"}
         ),
-            html.Div(id='outputPar1', style={
-                'textAlign': 'center'}
+            html.Div(
+            html.Button("Clear Graphs",
+                        id="clear-button",
+                        className="btn"),
+            style={"text-align": "center"}
+        )
+        ])
+    if controller == "PI":
+        return html.Div([html.H2("Controller Parameters",
+                                 style={'textAlign': 'center'}
+                                 ),
+                         drawSlider("Kp"),
+                         html.Br(),
+                         drawSlider("Ti"),
+                         html.Div(
+            html.Button("Update Graphs",
+                        id="apply-button",
+                        className="btn"),
+            style={"text-align": "center"}
         ),
-            html.Div(id='outputPar2', style={
-                'textAlign': 'center'}
+            html.Div(
+            html.Button("Clear Graphs",
+                        id="clear-button",
+                        className="btn"),
+            style={"text-align": "center"}
+        )
+        ])
+    if controller == "PID":
+        return html.Div([html.H2("Controller Parameters",
+                                 style={'textAlign': 'center'}
+                                 ),
+                         drawSlider("Kp"),
+                         html.Br(),
+                         drawSlider("Ti"),
+                         html.Br(),
+                         drawSlider("Td"),
+                         html.Div(
+            html.Button("Update Graphs",
+                        id="apply-button",
+                        className="btn"),
+            style={"text-align": "center"}
         ),
-            html.Div(id='outputPar3', style={
-                'textAlign': 'center'}
+            html.Div(
+            html.Button("Clear Graphs",
+                        id="clear-button",
+                        className="btn"),
+            style={"text-align": "center"}
         )
         ])
     if controller == "FUZZY":
@@ -143,6 +191,8 @@ def create_layout():
                             style={'textAlign': 'center'},
                             id='controllersRB',
                             options=[
+                                {'label': ' P Controller', 'value': 'P'},
+                                {'label': ' PI Controller', 'value': 'PI'},
                                 {'label': ' PID Controller', 'value': 'PID'},
                                 {'label': ' Fuzzy Logic Controller', 'value': 'FUZZY'}
                             ]
