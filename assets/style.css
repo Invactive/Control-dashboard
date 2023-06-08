@@ -36,7 +36,7 @@
     border-radius: 5px;
     border-color: #aaaaaa;
     height: 30px;
-    width: 70px;
+    width: 100px;
 }
 
 .inputBox:hover {
@@ -85,7 +85,7 @@
 }
 
 .sliderSim {
-    flex: 0.7;
+    flex: 0.5;
     width: 70px;
     margin-top: 15px;
 }

@@ -1,15 +1,15 @@
 from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
-import json
 import pandas as pd
+import plotly.graph_objects as go
 
 
 def drawSlider(text: str):
     return html.Div(
         className="row-container-" + text,
         children=[
-            html.Div(text + ":",
+            html.Div(text,
                      style={"margin-top": "-5px",
                             "width": "25px"}),
             dcc.Slider(
@@ -26,7 +26,6 @@ def drawSlider(text: str):
             dcc.Input(
                 id="inpParam" + text,
                 className="inputBox",
-                placeholder='Enter a value...',
                 type='number',
                 value=0,
                 style={"margin-top": "-5px"},
@@ -34,10 +33,8 @@ def drawSlider(text: str):
         ])
 
 
-def drawFigure(df: pd.DataFrame, f_title: str, x_label: str, y_label: str):
-    return px.line(df, x=df.columns[0], y=df.columns[1], title=f_title,
-                   labels={df.columns[0]: x_label, df.columns[1]: y_label}
-                   ).update_layout(
+def drawFigures(df_list: list, f_title: str, x_label: str, y_label: str):
+    layout = go.Layout(
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
@@ -52,11 +49,28 @@ def drawFigure(df: pd.DataFrame, f_title: str, x_label: str, y_label: str):
                 'size': 20
             }
         },
+        xaxis={'title': x_label},
+        yaxis={'title': y_label},
         modebar={
             'orientation': 'v',
             'bgcolor': 'rgba(0,0,0,0.5)'
         }
     )
+    lines = []
+    for i in range(len(df_list)):
+        if i == 0:
+            if df_list[1].empty:
+                line_color = 'royalblue'
+            else:
+                line_color = 'grey'
+        elif i == 1:
+            line_color = 'royalblue'
+        lines.append(go.Scatter(x=df_list[i]["x"],
+                                y=df_list[i]["y"],
+                                line=dict(color=line_color),
+                                name="Old trace" if i == 0 else "New Trace"))
+    fig = go.Figure(data=lines, layout=layout)
+    return fig
 
 
 def drawMainHeader(text: str):
@@ -76,18 +90,19 @@ def drawSimParams():
                              style={'textAlign': 'center'}
                              ),
                      dbc.Row(
-        className="row-container-Sim",
+        className="row-container-Sim-Tp",
         children=[
-            html.Div("Simulation Time [s]" + ":",
+            html.Div("Simulation Time [s]",
                      style={"margin-top": "-5px",
-                            "width": "150px"}),
+                            "width": "110px",
+                            "margin-right": "-20px"}),
             dcc.Slider(
                 id="sliderSimTime",
                 className="sliderSim",
                 min=0,
                 max=1000,
-                value=0,
-                step=1,
+                value=10,
+                step=0.1,
                 marks=None,
                 tooltip={"placement": "bottom",
                          "always_visible": True},
@@ -97,11 +112,72 @@ def drawSimParams():
                 className="inputBox",
                 placeholder='Enter a value...',
                 type='number',
-                value=0,
+                min=0,
+                max=1000,
+                value=10,
+                step=0.1,
                 style={"margin-top": "-5px"},
             ),
-
         ]),
+        dbc.Row(
+        className="row-container-Sim-Tp",
+        children=[
+            html.Div("Sampling Time [s]",
+                     style={"margin-top": "-5px",
+                            "width": "110px",
+                            "margin-right": "-20px"}),
+            dcc.Slider(
+                id="sliderSimTp",
+                className="sliderSim",
+                min=0.01,
+                max=5.0,
+                value=0.01,
+                step=0.01,
+                marks=None,
+                tooltip={"placement": "bottom",
+                         "always_visible": True},
+            ),
+            dcc.Input(
+                id="inpParamSimTp",
+                className="inputBox",
+                type='number',
+                min=0.01,
+                max=5.0,
+                value=0.01,
+                step=0.01,
+                style={"margin-top": "-5px"},
+            ),
+        ]),
+        dbc.Row(
+        className="row-container-Sim-Tp",
+        children=[
+            html.Div("Set Point [m]",
+                     style={"margin-top": "-5px",
+                            "width": "110px",
+                            "margin-right": "-20px"}),
+            dcc.Slider(
+                id="sliderSimSP",
+                className="sliderSim",
+                min=0.0001,
+                max=0.0105,
+                value=0.001,
+                step=0.0001,
+                marks=None,
+                tooltip={"placement": "bottom",
+                         "always_visible": True},
+            ),
+            dcc.Input(
+                id="inpParamSimSP",
+                className="inputBox",
+                type='number',
+                min=0.0001,
+                max=0.0105,
+                value=0.001,
+                step=0.0001,
+                style={"margin-top": "-5px"},
+            ),
+        ],
+        style={"margin-bottom": "20px"}),
     ])
 
 
@@ -159,7 +235,7 @@ def drawModelParams():
                      html.Div(
         className="row-container-Sim-Tp",
         children=[
-            html.Div("Model Param PH" + ":",
+            html.Div("Model Param PH",
                      style={"margin-top": "-5px",
                             "width": "150px"}),
             dcc.Slider(
@@ -176,42 +252,12 @@ def drawModelParams():
             dcc.Input(
                 id="inpParamModelTime",
                 className="inputBox",
-                placeholder='Enter a value...',
                 type='number',
                 value=0,
                 style={"margin-top": "-5px"},
             ),
         ]),
     ])
-
-
-# Data
-with open('DATA.json') as json_file:
-    DATA = json.load(json_file)
-
-df0 = pd.DataFrame(dict(
-    x=DATA["t"],
-    y=DATA["v"]
-))
-# fig = px.line(df0, x="x", y="y", title="Position x in time t")
-
-df1 = pd.DataFrame(dict(
-    x=DATA["t"],
-    y=DATA["x"]
-))
-# fig1 = px.line(df1, x="x", y="y", title="Position x in time t")
-
-df2 = pd.DataFrame(dict(
-    x=DATA["t"],
-    y=DATA["e"]
-))
-# fig2 = px.line(df1, x="x", y="y", title="Position x in time t")
-
-df3 = pd.DataFrame(dict(
-    x=DATA["t"],
-    y=DATA["u"]
-))
-# fig3 = px.line(df3, x="x", y="y", title="Position x in time t")
 
 
 def create_layout():
@@ -256,8 +302,10 @@ def create_layout():
                                         dbc.CardBody([
                                             dcc.Graph(
                                                 id="graph0",
-                                                figure=drawFigure(df=pd.DataFrame(
-                                                    {"x": [], "y": []}),
+                                                figure=drawFigures(df_list=[
+                                                    pd.DataFrame(
+                                                        {"x": [], "y": []}),
+                                                    pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Speed v in time t",
                                                     x_label="Time [s]",
                                                     y_label="Speed [undefined]")
@@ -270,8 +318,10 @@ def create_layout():
                                         dbc.CardBody([
                                             dcc.Graph(
                                                 id="graph1",
-                                                figure=drawFigure(df=pd.DataFrame(
-                                                    {"x": [], "y": []}),
+                                                figure=drawFigures(df_list=[
+                                                    pd.DataFrame(
+                                                        {"x": [], "y": []}),
+                                                    pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Position x in time t",
                                                     x_label="Time [s]",
                                                     y_label="Position [undefined]")
@@ -284,8 +334,10 @@ def create_layout():
                                         dbc.CardBody([
                                             dcc.Graph(
                                                 id="graph2",
-                                                figure=drawFigure(df=pd.DataFrame(
-                                                    {"x": [], "y": []}),
+                                                figure=drawFigures(df_list=[
+                                                    pd.DataFrame(
+                                                        {"x": [], "y": []}),
+                                                    pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Error e in time t",
                                                     x_label="Time [s]",
                                                     y_label="Error [undefined]")
@@ -298,8 +350,10 @@ def create_layout():
                                         dbc.CardBody([
                                             dcc.Graph(
                                                 id="graph3",
-                                                figure=drawFigure(df=pd.DataFrame(
-                                                    {"x": [], "y": []}),
+                                                figure=drawFigures(df_list=[
+                                                    pd.DataFrame(
+                                                        {"x": [], "y": []}),
+                                                    pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Control signal u in time t",
                                                     x_label="Time [s]",
                                                     y_label="Control signal [undefined]")
@@ -311,6 +365,8 @@ def create_layout():
                         ]),
                 html.Br(),
             ]), color='dark'
-        )
+        ),
+        html.Div(id="hidden-div",
+                 style={"display": "none"})
     ])
     return layout

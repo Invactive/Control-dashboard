@@ -10,6 +10,5 @@ app.layout = layout.create_layout()
 
 get_callbacks(app)
 
-# Run app
 if __name__ == "__main__":
     app.run_server(debug=True)
