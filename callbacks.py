@@ -1,9 +1,7 @@
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
 import layout
 import dash
 import importlib
-import plotly.express as px
 import pandas as pd
 import model
 import json
@@ -148,25 +146,25 @@ def get_callbacks(app):
             {"x": [], "y": []})
 
         return (layout.drawFigures(
-            df_list=[empty_df],
+            df_list=[empty_df, empty_df],
             f_title="Speed v in time t",
             x_label="Time [s]",
             y_label="Speed [undefined]"
         ),
             layout.drawFigures(
-            df_list=[empty_df],
+            df_list=[empty_df, empty_df],
             f_title="Position x in time t",
             x_label="Time [s]",
             y_label="Position [undefined]"
         ),
             layout.drawFigures(
-            df_list=[empty_df],
+            df_list=[empty_df, empty_df],
             f_title="Error e in time t",
             x_label="Time [s]",
             y_label="Error [undefined]"
         ),
             layout.drawFigures(
-            df_list=[empty_df],
+            df_list=[empty_df, empty_df],
             f_title="Control signal u in time t",
             x_label="Time [s]",
             y_label="Control signal [undefined]"
