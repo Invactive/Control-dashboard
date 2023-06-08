@@ -120,6 +120,21 @@ def get_callbacks(app):
         return value, value
 
     @app.callback(
+        # Callback for mass slider and inputBox
+        Output("inpParamModelMass", "value"),
+        Output("sliderModelMass", "value"),
+        Input("inpParamModelMass", "value"),
+        Input("sliderModelMass", "value")
+
+    )
+    def update_mass(inp_value, slider_value):
+        ctx = dash.callback_context
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        value = inp_value if trigger_id == "inpParamModelMass" else slider_value
+        model.m = value
+        return value, value
+
+    @app.callback(
         # Callback for buttons
         Output("graph0", "figure"),
         Output("graph1", "figure"),
@@ -230,3 +245,21 @@ def get_callbacks(app):
             y_label="Control signal [undefined]"
         )
         )
+
+    @app.callback(
+        Output('data-output', 'children'),
+        [Input('show-button', 'n_clicks')]
+    )
+    def show_data(n_clicks):
+        if n_clicks is None:
+            return ''
+
+        data = 'Tsim:{}\n'.format(str(model.Tsim))
+        data += 'Tp:{}\n'.format(str(model.Tp))
+        data += 'SP:{}\n'.format(str(model.setpoint))
+        data += 'Kp:{}\n'.format(str(model.Kp))
+        data += 'Ti:{}\n'.format(str(model.Ti))
+        data += 'Td:{}\n'.format(str(model.Td))
+        data += 'Mass:{}\n'.format(str(model.m))
+
+        return dash.html.P(data)

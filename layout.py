@@ -15,7 +15,7 @@ def drawSlider(text: str):
                 id="slider" + text,
                 className="slider",
                 min=0,
-                max=100,
+                max=500,
                 value=0,
                 step=0.1,
                 marks=None,
@@ -128,10 +128,10 @@ def drawSimParams():
             dcc.Slider(
                 id="sliderSimTp",
                 className="sliderSim",
-                min=0.01,
+                min=0.0,
                 max=5.0,
                 value=0.01,
-                step=0.01,
+                step=0.0001,
                 marks=None,
                 tooltip={"placement": "bottom",
                          "always_visible": True},
@@ -140,10 +140,10 @@ def drawSimParams():
                 id="inpParamSimTp",
                 className="inputBox",
                 type='number',
-                min=0.01,
+                min=0.0,
                 max=5.0,
                 value=0.01,
-                step=0.01,
+                step=0.0001,
                 style={"margin-top": "-5px"},
             ),
         ]),
@@ -234,11 +234,11 @@ def drawModelParams():
                      html.Div(
         className="row-container-Sim-Tp",
         children=[
-            html.Div("Model Param PH",
+            html.Div("Ball Mass [kg]",
                      style={"margin-top": "-5px",
-                            "width": "150px"}),
+                            "width": "100px"}),
             dcc.Slider(
-                id="sliderModelTime",
+                id="sliderModelMass",
                 className="sliderSim",
                 min=0,
                 max=1000,
@@ -249,7 +249,7 @@ def drawModelParams():
                          "always_visible": True},
             ),
             dcc.Input(
-                id="inpParamModelTime",
+                id="inpParamModelMass",
                 className="inputBox",
                 type='number',
                 value=0,
@@ -366,6 +366,10 @@ def create_layout():
             ]), color='dark'
         ),
         html.Div(id="hidden-div",
-                 style={"display": "none"})
+                 style={"display": "none"}),
+        html.Div([
+            html.Button('Show Data', id='show-button'),
+            html.Div(id='data-output')
+        ])
     ])
     return layout
