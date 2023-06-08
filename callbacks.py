@@ -131,7 +131,7 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamModelMass" else slider_value
-        model.m = value
+        # model.m = value
         return value, value
 
     @app.callback(
