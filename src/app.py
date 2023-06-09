@@ -6,6 +6,7 @@ from callbacks import get_callbacks
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE],
            suppress_callback_exceptions=True)
+server = app.server
 app.layout = layout.create_layout()
 
 get_callbacks(app)

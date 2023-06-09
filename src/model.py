@@ -2,7 +2,7 @@ import numpy as np
 import json
 
 
-DATA = {}
+# DATA = {}
 
 # Constants
 # Process parameters
@@ -65,8 +65,8 @@ Ti = 0
 # Regulator
 # nastawy regulatora
 # kp = 80
-# Td = 10
 # Ti = 120
+# Td = 10
 
 
 def generateData(Tsim: float,
@@ -77,6 +77,10 @@ def generateData(Tsim: float,
                  setpoint: float,
                  output: str):
     # Main loop - generating data
+    N = int(Tsim/Tp) + 1
+    P = 0
+    I = 0
+    D = 0
     x1 = [0]
     x2 = [0]
     x3 = [0]
@@ -84,10 +88,7 @@ def generateData(Tsim: float,
     u = [0]
     e_n = [0]
     t = [0]
-    P = 0
-    I = 0
-    D = 0
-    N = int(Tsim/Tp) + 1
+    DATA = {}
 
     for n in range(1, N):
         t.append(n * Tp)
@@ -97,15 +98,21 @@ def generateData(Tsim: float,
 
         x1.append(max(min((x1[-1] + Tp*x2[-1]), x1max), x1min))
         x2.append(x2[-1] + Tp*(g - (x3[-1]**2) * 1/(2*m)
-                               * FemP1/FemP2 * np.exp((-x1[-1]/FemP2))))
+                  * FemP1/FemP2 * np.exp((-x1[-1]/FemP2))))
         x3.append(max(min((x3[-1] + Tp * f2/f1 * np.exp((x1[-1]/f2))
-                           * (k*u[-1] + c - x3[-1])), x3max), x3min))
+                  * (k*u[-1] + c - x3[-1])), x3max), x3min))
 
         P = kp * -e_n[-1]
         I = I + Ti * -e_n[-1] * (t[-1] - t[-2])
         D = Td * -(e_n[-1] - e_n[-2]) / (t[-1] - t[-2])
         y.append(x1[-1])
 
+    DATA["kp"] = kp
+    DATA["Ti"] = Ti
+    DATA["Td"] = Td
+    DATA["Tsim"] = Tsim
+    DATA["Tp"] = Tp
+    DATA["setpoint"] = setpoint
     DATA["t"] = t   # time s
     DATA["x"] = x1  # position m
     DATA["u"] = u   # control signal

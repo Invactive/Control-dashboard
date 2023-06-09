@@ -8,7 +8,7 @@ import json
 import os
 import helpers
 
-importlib.reload(layout)  # for testing purposes
+# importlib.reload(layout)  # for testing purposes
 
 
 def get_callbacks(app):
@@ -254,12 +254,12 @@ def get_callbacks(app):
         if n_clicks is None:
             return ''
 
-        data = 'Tsim:{}\n'.format(str(model.Tsim))
-        data += 'Tp:{}\n'.format(str(model.Tp))
-        data += 'SP:{}\n'.format(str(model.setpoint))
-        data += 'Kp:{}\n'.format(str(model.Kp))
-        data += 'Ti:{}\n'.format(str(model.Ti))
-        data += 'Td:{}\n'.format(str(model.Td))
-        data += 'Mass:{}\n'.format(str(model.m))
+        data = 'Tsim:{}\n'.format(model.Tsim)
+        data += 'Tp:{}\n'.format(model.Tp)
+        data += 'SP:{}\n'.format(model.setpoint)
+        data += 'Kp:{}\n'.format(model.Kp)
+        data += 'Ti:{}\n'.format(model.Ti)
+        data += 'Td:{}\n'.format(model.Td)
+        data += 'Mass:{}\n'.format(model.m)
 
         return dash.html.P(data)

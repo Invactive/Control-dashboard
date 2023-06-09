@@ -1,8 +1,8 @@
 import json
 import pandas as pd
 
-DATA_NEW = "data/DATA_new.json"
-DATA_OLD = "data/DATA_old.json"
+DATA_NEW = "../data/DATA_new.json"
+DATA_OLD = "../data/DATA_old.json"
 
 
 def readDATA(src: str):

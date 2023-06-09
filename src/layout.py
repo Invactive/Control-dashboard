@@ -266,7 +266,7 @@ def create_layout():
             dbc.CardBody([
                 dbc.Row([
                     dbc.Col([
-                        drawMainHeader("Control Panel")
+                        drawMainHeader("Control Dashboard")
                     ], width=12),
                 ], align='center'),
                 dbc.Row(className="params-container",
@@ -370,6 +370,6 @@ def create_layout():
         html.Div([
             html.Button('Show Data', id='show-button'),
             html.Div(id='data-output')
-        ])
+        ], style={"display": "none"})
     ])
     return layout
