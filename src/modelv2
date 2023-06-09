@@ -1,0 +1,101 @@
+import numpy as np
+# import skfuzzy as fuzz
+# from skfuzzy import control as ctrl
+import matplotlib.pyplot as plt
+from pprint import pprint
+from fuzzy_logic.terms import Term
+from fuzzy_logic.variables import FuzzyVariable, SugenoVariable, LinearSugenoFunction
+from fuzzy_logic.sugeno_fs import SugenoFuzzySystem
+from fuzzy_logic.mf import TriangularMF
+import json
+import sys
+
+#parametry procesu
+m = 5.3 * float(10**(-2)) #kg
+FemP1 = 3.5969 * float(10**(-2)) #H
+FemP2 = 5.2356 * float(10**(-3)) #m
+f1 = 1.4142 * float(10**(-4)) #ms
+f2 = 4.5626 * float(10**(-3)) #m
+k = 2.6 * float(10**(0)) #A
+c = -4.44 * float(10**(-2)) #A
+g = 9.81
+
+#parametry eksperymentu symulacyjnego
+Tp = 0.0001
+Tsim = 2
+N = int(Tsim/Tp) + 1
+
+#wartości początkowe
+x1 = [0]
+x2 = [0]
+x3 = [0]
+y =  [0]
+u1 = [0]
+e_n = [0]
+t = [0]
+
+
+umax = 5
+umin = 0
+e_nmin = 0
+x3max = 2.38
+x3min = 0.03884
+x1max = 0.0105
+x1min = 0
+zadana = 0.005
+# zadana = float(sys.argv[1])
+
+#nastawy regulatora
+
+t1: Term = Term('NB', TriangularMF(0, 0, zadana/2))
+t2: Term = Term('NS', TriangularMF(0, zadana/1.2, zadana))
+t3: Term = Term('ZE', TriangularMF(zadana/1.2, zadana, 1.2*zadana))
+t4: Term = Term('PS', TriangularMF(zadana,1.2*zadana, 2*zadana))
+t5: Term = Term('PB', TriangularMF(zadana/2,4*zadana, 4*zadana))
+
+e: FuzzyVariable = FuzzyVariable('e', 0, zadana, t1, t2, t3, t4, t5)
+
+u: SugenoVariable = SugenoVariable('u',
+    LinearSugenoFunction('NB', {e: 0}, 0),
+    LinearSugenoFunction('NS', {e: 0.2}, 0.2),
+    LinearSugenoFunction('Z', {e: 0.5}, 0.5),
+    LinearSugenoFunction('PS', {e: 0.8}, 0.8),
+    LinearSugenoFunction('PB', {e: 1}, 1)
+)
+
+FS: SugenoFuzzySystem = SugenoFuzzySystem([e], [u])
+FS.rules.append(FS.parse_rule('if (e is NB) then (u is NB)'))
+FS.rules.append(FS.parse_rule('if (e is NS) then (u is NS)'))
+FS.rules.append(FS.parse_rule('if (e is Z) then (u is Z)'))
+FS.rules.append(FS.parse_rule('if (e is PS) then (u is PS)'))
+FS.rules.append(FS.parse_rule('if (e is PB) then (u is PB)'))
+
+e_n = [x1max - zadana[-1]]
+result = FS.calculate({e: e_n[-1]})
+u_n = [result[u]]
+
+for n in range(1, N):
+    t.append(n * Tp)
+
+    e_n.append(zadana - y[-1])
+
+    x1.append(max(min(( x1[-1] + Tp*x2[-1] ), x1max), x1min))
+    x2.append( x2[-1] + Tp*(g - (x3[-1]**2) * 1/(2*m) * FemP1/FemP2 * np.exp((-x1[-1]/FemP2))) )
+    x3.append(max(min(( x3[-1] + Tp * f2/f1 * np.exp((x1[-1]/f2)) * (k*u1[-1] + c - x3[-1]) ), x3max), x3min))
+
+    u1.append(max(min(result[u], umax), umin))
+    result = FS.calculate({e: e_n[-1]})
+    y.append(x1[-1])
+
+
+fig,  ax = plt.subplots(2)
+plt.grid()
+ax[0].plot(t,y,'b') #niebieski
+plt.grid()
+ax[0].plot(t,e_n,'g--') #zielony
+plt.grid()
+ax[1].plot(t,u1,'r') #czerwony
+
+plt.show()
+plt.grid()
+
