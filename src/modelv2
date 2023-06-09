@@ -58,7 +58,7 @@ e: FuzzyVariable = FuzzyVariable('e', 0, zadana, t1, t2, t3, t4, t5)
 u: SugenoVariable = SugenoVariable('u',
     LinearSugenoFunction('NB', {e: 0}, 0),
     LinearSugenoFunction('NS', {e: 0.2}, 0.2),
-    LinearSugenoFunction('Z', {e: 0.5}, 0.5),
+    LinearSugenoFunction('ZE', {e: 0.5}, 0.5),
     LinearSugenoFunction('PS', {e: 0.8}, 0.8),
     LinearSugenoFunction('PB', {e: 1}, 1)
 )
@@ -66,11 +66,11 @@ u: SugenoVariable = SugenoVariable('u',
 FS: SugenoFuzzySystem = SugenoFuzzySystem([e], [u])
 FS.rules.append(FS.parse_rule('if (e is NB) then (u is NB)'))
 FS.rules.append(FS.parse_rule('if (e is NS) then (u is NS)'))
-FS.rules.append(FS.parse_rule('if (e is Z) then (u is Z)'))
+FS.rules.append(FS.parse_rule('if (e is ZE) then (u is ZE)'))
 FS.rules.append(FS.parse_rule('if (e is PS) then (u is PS)'))
 FS.rules.append(FS.parse_rule('if (e is PB) then (u is PB)'))
 
-e_n = [x1max - zadana[-1]]
+# e_n = [x1max - y[-1]]
 result = FS.calculate({e: e_n[-1]})
 u_n = [result[u]]
 
