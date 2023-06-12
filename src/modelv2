@@ -43,6 +43,8 @@ x3min = 0.03884
 x1max = 0.0105
 x1min = 0
 zadana = 0.006
+D=0
+Td = 2
 # zadana = float(sys.argv[1])
 
 #nastawy regulatora
@@ -81,11 +83,12 @@ e_n = [x1max - y[-1]]
 result = FS.calculate({e: e_n[-1]})
 u_n = [result[u]]
 
+
 for n in range(1, N):
     t.append(n * Tp)
 
     e_n.append(zadana - y[-1])
-    u1.append(max(min(result[u], umax), umin))
+    u1.append(max(min(result[u]+D, umax), umin))
     result = FS.calculate({e: e_n[-1]})
     y.append(x1[-1])
 
@@ -93,16 +96,17 @@ for n in range(1, N):
     x2.append( x2[-1] + Tp*(g - (x3[-1]**2) * 1/(2*m) * FemP1/FemP2 * np.exp((-x1[-1]/FemP2))) )
     x3.append(max(min(( x3[-1] + Tp * f2/f1 * np.exp((x1[-1]/f2)) * (k*u1[-1] + c - x3[-1]) ), x3max), x3min))
 
+    D = Td * -(e_n[-1] - e_n[-2]) / (t[-1] - t[-2])
 
 
 
-fig,  ax = plt.subplots(2)
-plt.grid()
-ax[0].plot(t,y,'b') #niebieski
-plt.grid()
-ax[0].plot(t,e_n,'g--') #zielony
-plt.grid()
-ax[1].plot(t,u1,'r') #czerwony
+# fig,  ax = plt.subplots(2)
+# plt.grid()
+# ax[0].plot(t,y,'b') #niebieski
+# plt.grid()
+# ax[0].plot(t,e_n,'g--') #zielony
+# plt.grid()
+# ax[1].plot(t,u1,'r') #czerwony
 
-plt.show()
-plt.grid()
+# plt.show()
+# plt.grid()
