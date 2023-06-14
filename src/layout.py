@@ -480,10 +480,14 @@ def create_layout():
         html.Div(id="hidden-div",
                  style={"display": "none"}),
         html.Div([
-            html.Button('Show Data', id='show-button'),
-            html.Div(id='data-output'),
-            html.Div(id='NB-output'),
-            html.Div(id='NS-output'),
+            html.Button('Show Data', id='show-button',
+                 style={"display": "none"}),
+            html.Div(id='data-output',
+                 style={"display": "none"}),
+            html.Div(id='NB-output',
+                 style={"display": "none"}),
+            html.Div(id='NS-output',
+                 style={"display": "none"}),
         ], style={})
     ])
     return layout
