@@ -9,8 +9,7 @@ def drawSlider(text: str):
         className="row-container-" + text,
         children=[
             html.Div(text,
-                     style={"margin-top": "-5px",
-                            "width": "25px"}),
+                     style={"margin-top": "-5px"}),
             dcc.Slider(
                 id="slider" + text,
                 className="slider",
@@ -28,6 +27,26 @@ def drawSlider(text: str):
                 type='number',
                 value=0,
                 style={"margin-top": "-5px"},
+            ),
+        ])
+
+
+def drawRangeSlider(text: str):
+    return html.Div(
+        className="row-container-" + text,
+        children=[
+            html.Div(text,
+                     style={"margin-top": "-5px"}),
+            dcc.RangeSlider(
+                id="rangeSlider" + text,
+                className="slider",
+                min=-0.0105,
+                max=0.0105,
+                value=[-0.0105, 0.0105],
+                step=0.0001,
+                marks=None,
+                tooltip={"placement": "bottom",
+                         "always_visible": True}
             ),
         ])
 
@@ -93,14 +112,14 @@ def drawSimParams():
         children=[
             html.Div("Simulation Time [s]",
                      style={"margin-top": "-5px",
-                            "width": "110px",
+                            "width": "120px",
                             "margin-right": "-20px"}),
             dcc.Slider(
                 id="sliderSimTime",
                 className="sliderSim",
                 min=0,
-                max=1000,
-                value=10,
+                max=10,
+                value=2,
                 step=0.1,
                 marks=None,
                 tooltip={"placement": "bottom",
@@ -112,7 +131,7 @@ def drawSimParams():
                 placeholder='Enter a value...',
                 type='number',
                 min=0,
-                max=1000,
+                max=10,
                 value=10,
                 step=0.1,
                 style={"margin-top": "-5px"},
@@ -123,7 +142,7 @@ def drawSimParams():
         children=[
             html.Div("Sampling Time [s]",
                      style={"margin-top": "-5px",
-                            "width": "110px",
+                            "width": "120px",
                             "margin-right": "-20px"}),
             dcc.Slider(
                 id="sliderSimTp",
@@ -152,7 +171,7 @@ def drawSimParams():
         children=[
             html.Div("Set Point [m]",
                      style={"margin-top": "-5px",
-                            "width": "110px",
+                            "width": "120px",
                             "margin-right": "-20px"}),
             dcc.Slider(
                 id="sliderSimSP",
@@ -220,8 +239,98 @@ def drawControllerParams(controller: str):
                            drawSlider("Td"),
                            ])
     if controller == "FUZZY":
-        layout = html.Div([html.H2("Controller Parameters", style={'textAlign': 'center'}),
-                           html.H3("FUZZY PH", style={'textAlign': 'center'})])
+        layout = html.Div([html.H2("Controller Parameters",
+                                   style={'textAlign': 'center'}),
+                           html.Div(
+            className="row-container-" + "NegativeBig",
+            children=[
+                html.Div("NegativeBig",
+                         style={"margin-top": "-5px"}),
+                dcc.RangeSlider(
+                    id="rangeSlider" + "NegativeBig",
+                    className="slider",
+                    min=-0.0105,
+                    max=0.0105,
+                    value=[-0.0105, -0.0013125],
+                    step=0.0001,
+                    marks=None,
+                    tooltip={"placement": "bottom",
+                             "always_visible": True}
+                ),
+            ]),
+            html.Br(),
+            html.Div(
+            className="row-container-" + "NegativeSmall",
+            children=[
+                html.Div("NegativeSmall",
+                         style={"margin-top": "-5px"}),
+                dcc.RangeSlider(
+                    id="rangeSlider" + "NegativeSmall",
+                    className="slider",
+                    min=-0.0105,
+                    max=0.0105,
+                    value=[-0.0105, 0],
+                    step=0.0001,
+                    marks=None,
+                    tooltip={"placement": "bottom",
+                             "always_visible": True}
+                ),
+            ]),
+            html.Br(),
+            html.Div(
+            className="row-container-" + "Zero",
+            children=[
+                html.Div("Zero",
+                         style={"margin-top": "-5px"}),
+                dcc.RangeSlider(
+                    id="rangeSlider" + "Zero",
+                    className="slider",
+                    min=-0.0105,
+                    max=0.0105,
+                    value=[-0.0105, 0.00105],
+                    step=0.0001,
+                    marks=None,
+                    tooltip={"placement": "bottom",
+                             "always_visible": True}
+                ),
+            ]),
+            html.Br(),
+            html.Div(
+            className="row-container-" + "PositiveSmall",
+            children=[
+                html.Div("PositiveSmall",
+                         style={"margin-top": "-5px"}),
+                dcc.RangeSlider(
+                    id="rangeSlider" + "PositiveSmall",
+                    className="slider",
+                    min=-0.0105,
+                    max=0.0105,
+                    value=[0, 0.0105],
+                    step=0.0001,
+                    marks=None,
+                    tooltip={"placement": "bottom",
+                             "always_visible": True}
+                ),
+            ]),
+            html.Br(),
+            html.Div(
+            className="row-container-" + "PositiveBig",
+            children=[
+                html.Div("PositiveBig",
+                         style={"margin-top": "-5px"}),
+                dcc.RangeSlider(
+                    id="rangeSlider" + "PositiveBig",
+                    className="slider",
+                    min=-0.0105,
+                    max=0.0105,
+                    value=[0.0013125, 0.0105],
+                    step=0.0001,
+                    marks=None,
+                    tooltip={"placement": "bottom",
+                             "always_visible": True}
+                ),
+            ]),
+        ])
 
     if layout != None:
         return layout, drawButtons()
@@ -234,16 +343,16 @@ def drawModelParams():
                      html.Div(
         className="row-container-Sim-Tp",
         children=[
-            html.Div("Ball Mass [kg]",
+            html.Div("Ball Mass [g]",
                      style={"margin-top": "-5px",
                             "width": "100px"}),
             dcc.Slider(
                 id="sliderModelMass",
                 className="sliderSim",
-                min=0,
-                max=1000,
-                value=0,
-                step=1,
+                min=1,
+                max=100,
+                value=53,
+                step=0.1,
                 marks=None,
                 tooltip={"placement": "bottom",
                          "always_visible": True},
@@ -252,7 +361,10 @@ def drawModelParams():
                 id="inpParamModelMass",
                 className="inputBox",
                 type='number',
-                value=0,
+                min=1,
+                max=100,
+                value=53,
+                step=0.1,
                 style={"margin-top": "-5px"},
             ),
         ]),
@@ -307,7 +419,7 @@ def create_layout():
                                                     pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Speed v in time t",
                                                     x_label="Time [s]",
-                                                    y_label="Speed [undefined]")
+                                                    y_label="Speed [m/s]")
                                             )
                                         ])
                                     ),
@@ -323,7 +435,7 @@ def create_layout():
                                                     pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Position x in time t",
                                                     x_label="Time [s]",
-                                                    y_label="Position [undefined]")
+                                                    y_label="Position [m]")
                                             )
                                         ])
                                     ),
@@ -339,7 +451,7 @@ def create_layout():
                                                     pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Error e in time t",
                                                     x_label="Time [s]",
-                                                    y_label="Error [undefined]")
+                                                    y_label="Error [m]")
                                             )
                                         ])
                                     ),
@@ -355,7 +467,7 @@ def create_layout():
                                                     pd.DataFrame({"x": [], "y": []})],
                                                     f_title="Control signal u in time t",
                                                     x_label="Time [s]",
-                                                    y_label="Control signal [undefined]")
+                                                    y_label="Control signal [V]")
                                             )
                                         ])
                                     ),
@@ -369,7 +481,9 @@ def create_layout():
                  style={"display": "none"}),
         html.Div([
             html.Button('Show Data', id='show-button'),
-            html.Div(id='data-output')
-        ], style={"display": "none"})
+            html.Div(id='data-output'),
+            html.Div(id='NB-output'),
+            html.Div(id='NS-output'),
+        ], style={})
     ])
     return layout

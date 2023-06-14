@@ -65,6 +65,41 @@
     margin-top: -10px;
 }
 
+.row-container-NegativeBig {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.row-container-NegativeSmall {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
+.row-container-Zero {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
+.row-container-PositiveSmall {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
+.row-container-PositiveBig {
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+    margin-top: -10px;
+}
+
 .row-container-Sim-Time {
     display: flex;
     align-items: center;

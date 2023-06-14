@@ -1,9 +1,9 @@
 from dash.dependencies import Input, Output
 import layout
 import dash
-import importlib
 import pandas as pd
-import model
+import modelPID
+import modelFUZZY
 import json
 import os
 import helpers
@@ -34,7 +34,8 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamSimTime" else slider_value
-        model.Tsim = value
+        modelPID.Tsim = value
+        modelFUZZY.Tsim = value
         return value, value
 
     @app.callback(
@@ -48,7 +49,8 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamSimTp" else slider_value
-        model.Tp = value
+        modelPID.Tp = value
+        modelFUZZY.Tp = value
         return value, value
 
     @app.callback(
@@ -62,7 +64,8 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamSimSP" else slider_value
-        model.setpoint = value
+        modelPID.setpoint = value  # / 100.0
+        modelFUZZY.setpoint = value  # / 100.0
         return value, value
 
     @app.callback(
@@ -72,6 +75,7 @@ def get_callbacks(app):
         prevent_initial_call=True
     )
     def pick_Controller(value):
+        helpers.PICKED_CONTROLLER = value
         return layout.drawControllerParams(value)
 
     @app.callback(
@@ -86,7 +90,7 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamKp" else slider_value
-        model.Kp = value
+        modelPID.Kp = value
         return value, value
 
     @app.callback(
@@ -101,7 +105,7 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamTi" else slider_value
-        model.Ti = value
+        modelPID.Ti = value
         return value, value
 
     @app.callback(
@@ -110,14 +114,23 @@ def get_callbacks(app):
         Output("sliderTd", "value"),
         Input("inpParamTd", "value"),
         Input("sliderTd", "value")
-
     )
     def update_Td(inp_value, slider_value):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamTd" else slider_value
-        model.Td = value
+        modelPID.Td = value
         return value, value
+
+    @app.callback(
+        Output('NB-output', 'children'),
+        [Input('rangeSliderNegativeBig', 'value')])
+    def updateNB(value):
+        min = value[0]
+        max = value[1]
+        modelFUZZY.NB_l = min
+        modelFUZZY.NB_h = max
+        return value[0], value[1]
 
     @app.callback(
         # Callback for mass slider and inputBox
@@ -131,7 +144,8 @@ def get_callbacks(app):
         ctx = dash.callback_context
         trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = inp_value if trigger_id == "inpParamModelMass" else slider_value
-        # model.m = value
+        modelPID.m = value / 1000.0
+        modelFUZZY.m = value / 1000.0
         return value, value
 
     @app.callback(
@@ -164,25 +178,25 @@ def get_callbacks(app):
             df_list=[empty_df, empty_df],
             f_title="Speed v in time t",
             x_label="Time [s]",
-            y_label="Speed [undefined]"
+            y_label="Speed [m/s]"
         ),
             layout.drawFigures(
             df_list=[empty_df, empty_df],
             f_title="Position x in time t",
             x_label="Time [s]",
-            y_label="Position [undefined]"
+            y_label="Position [m]"
         ),
             layout.drawFigures(
             df_list=[empty_df, empty_df],
             f_title="Error e in time t",
             x_label="Time [s]",
-            y_label="Error [undefined]"
+            y_label="Error [m]"
         ),
             layout.drawFigures(
             df_list=[empty_df, empty_df],
             f_title="Control signal u in time t",
             x_label="Time [s]",
-            y_label="Control signal [undefined]"
+            y_label="Control signal [V]"
         )
         )
 
@@ -190,15 +204,26 @@ def get_callbacks(app):
         df_v_0 = df_x_0 = df_e_0 = df_u_0 = df_v_1 = df_x_1 = df_e_1 = df_u_1 = pd.DataFrame(
             {"x": [], "y": []})
         if os.path.getsize(helpers.DATA_NEW) == 0:
-            model.generateData(Tsim=model.Tsim,
-                               Tp=model.Tp,
-                               kp=model.Kp,
-                               Ti=model.Ti,
-                               Td=model.Td,
-                               setpoint=model.setpoint,
-                               output=helpers.DATA_NEW)
-            df_v_0, df_x_0, df_e_0, df_u_0 = helpers.readDATA(
-                helpers.DATA_NEW)
+            if helpers.PICKED_CONTROLLER == "P" or "PI" or "PID":
+                modelPID.generateData(mass=modelPID.m,
+                                      Tsim=modelPID.Tsim,
+                                      Tp=modelPID.Tp,
+                                      kp=modelPID.Kp,
+                                      Ti=modelPID.Ti,
+                                      Td=modelPID.Td,
+                                      setpoint=modelPID.setpoint,
+                                      output=helpers.DATA_NEW)
+                df_v_0, df_x_0, df_e_0, df_u_0 = helpers.readDATA(
+                    helpers.DATA_NEW)
+            if helpers.PICKED_CONTROLLER == "FUZZY":
+                modelFUZZY.generateData(mass=modelFUZZY.m,
+                                        Tsim=modelFUZZY.Tsim,
+                                        Tp=modelFUZZY.Tp,
+                                        Td=2.0,
+                                        setpoint=modelFUZZY.setpoint,
+                                        output=helpers.DATA_NEW)
+                df_v_0, df_x_0, df_e_0, df_u_0 = helpers.readDATA(
+                    helpers.DATA_NEW)
         else:
             with open(helpers.DATA_NEW, 'r+') as source_file:
                 data = json.load(source_file)
@@ -206,13 +231,24 @@ def get_callbacks(app):
             with open(helpers.DATA_OLD, 'w') as destination_file:
                 json.dump(data, destination_file)
 
-            model.generateData(Tsim=model.Tsim,
-                               Tp=model.Tp,
-                               kp=model.Kp,
-                               Ti=model.Ti,
-                               Td=model.Td,
-                               setpoint=model.setpoint,
-                               output=helpers.DATA_NEW)
+            if helpers.PICKED_CONTROLLER == "P" or "PI" or "PID":
+                modelPID.generateData(mass=modelPID.m,
+                                      Tsim=modelPID.Tsim,
+                                      Tp=modelPID.Tp,
+                                      kp=modelPID.Kp,
+                                      Ti=modelPID.Ti,
+                                      Td=modelPID.Td,
+                                      setpoint=modelPID.setpoint,
+                                      output=helpers.DATA_NEW)
+
+            if helpers.PICKED_CONTROLLER == "FUZZY":
+                modelFUZZY.generateData(mass=modelFUZZY.m,
+                                        Tsim=modelFUZZY.Tsim,
+                                        Tp=modelFUZZY.Tp,
+                                        Td=2.0,
+                                        setpoint=modelFUZZY.setpoint,
+                                        output=helpers.DATA_NEW)
+
             df_v_1, df_x_1, df_e_1, df_u_1 = helpers.readDATA(
                 helpers.DATA_NEW)
             df_v_0, df_x_0, df_e_0, df_u_0 = helpers.readDATA(
@@ -222,27 +258,27 @@ def get_callbacks(app):
             df_list=[df_v_0, df_v_1],
             f_title="Speed v in time t",
             x_label="Time [s]",
-            y_label="Speed [undefined]"
+            y_label="Speed [m/s]"
         ),
             layout.drawFigures(
             df_list=[df_x_0, df_x_1],
             f_title="Position x in time t",
             x_label="Time [s]",
-            y_label="Position [undefined]"
-        ).add_hline(y=model.setpoint,
+            y_label="Position [m]"
+        ).add_hline(y=modelPID.setpoint,  # * 100.0,
                     line_dash="dash",
                     line_color="green"),
             layout.drawFigures(
             df_list=[df_e_0, df_e_1],
             f_title="Error e in time t",
             x_label="Time [s]",
-            y_label="Error [undefined]"
+            y_label="Error [m]"
         ),
             layout.drawFigures(
             df_list=[df_u_0, df_u_1],
             f_title="Control signal u in time t",
             x_label="Time [s]",
-            y_label="Control signal [undefined]"
+            y_label="Control signal [V]"
         )
         )
 
@@ -254,12 +290,8 @@ def get_callbacks(app):
         if n_clicks is None:
             return ''
 
-        data = 'Tsim:{}\n'.format(model.Tsim)
-        data += 'Tp:{}\n'.format(model.Tp)
-        data += 'SP:{}\n'.format(model.setpoint)
-        data += 'Kp:{}\n'.format(model.Kp)
-        data += 'Ti:{}\n'.format(model.Ti)
-        data += 'Td:{}\n'.format(model.Td)
-        data += 'Mass:{}\n'.format(model.m)
+        data = 'Mass:{}\n'.format(modelPID.m)
+        data += 'Mass:{}\n'.format(modelFUZZY.m)
+        data += 'SP:{}\n'.format(modelPID.setpoint)
 
         return dash.html.P(data)
